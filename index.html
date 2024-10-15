@@ -18,7 +18,7 @@
       <button id="callButton" class="contact-button">Call Me</button>
     </div>
     <div class="tea-section">
-      <p class="tea-message">Feeling generous? 🍵 Angusha za kabej with my M-Pesa number: <strong>0746779950</strong>. Send money!</p>
+      <p class="tea-message">Feeling generous? 🍵 Angusha za kabej to my M-Pesa number: <strong>0746779950</strong>. Send money!</p>
     </div>
   </div>
 
@@ -35,35 +35,23 @@
   const messageRow = document.createElement("div");
   messageRow.className = `message-row ${alignment === "left" ? "message-left" : "message-right"}`;
 
-  // Create an avatar container for SVG (therapist icon)
-  const avatarContainer = document.createElement("div");
-  avatarContainer.className = "avatar-container";
+ // Create an avatar container for the smiley face emoji
+const avatarContainer = document.createElement("div");
+avatarContainer.className = "avatar-container";
 
-  avatarContainer.innerHTML = `
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
+avatarContainer.innerHTML = `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="40" height="40" fill="none">
     <!-- Head (circular face) -->
-    <circle cx="32" cy="32" r="16" fill="#ff66b3"/>
-    
-    <!-- Hair (longer, around the head) -->
-    <path d="M16,28 Q32,12 48,28 Q40,24 48,42 Q32,50 16,42 Z" fill="#cc3366"/>
+    <circle cx="32" cy="32" r="30" fill="#FFEB3B"/>
 
-    <!-- Eyes (gentle, welcoming) -->
-    <circle cx="26" cy="30" r="2" fill="white"/>
-    <circle cx="38" cy="30" r="2" fill="white"/>
+    <!-- Eyes -->
+    <circle cx="22" cy="24" r="4" fill="#333"/>
+    <circle cx="42" cy="24" r="4" fill="#333"/>
 
-    <!-- Eyelashes for a feminine touch -->
-    <path d="M24 28 Q26 26, 28 28" stroke="white" stroke-width="1"/>
-    <path d="M36 28 Q38 26, 40 28" stroke="white" stroke-width="1"/>
-
-    <!-- Smile (warm and welcoming) -->
-    <path d="M26 38 Q32 44, 38 38" stroke="white" stroke-width="2" fill="none"/>
-
-    <!-- Cheeks (soft blush) -->
-    <circle cx="24" cy="38" r="2" fill="#ff99cc" opacity="0.8"/>
-    <circle cx="40" cy="38" r="2" fill="#ff99cc" opacity="0.8"/>
+    <!-- Smile -->
+    <path d="M20 38 Q32 48, 44 38" stroke="#333" stroke-width="4" fill="none"/>
   </svg>
 `;
-
   const messageBubble = document.createElement("div");
   messageBubble.className = `message-bubble ${alignment === "left" ? "message-left" : "message-right"}`;
   messageBubble.textContent = text;
