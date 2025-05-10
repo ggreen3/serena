@@ -1,26 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Serena-AI Therapist</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serena - Your AI Mental Health Assistant</title>
   <link href="serena.css" rel="stylesheet" />
-    <link rel="icon" href="c:\Users\LENOVO\Downloads\serena.jpg" type="image/jpeg">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6748092513138323"
-     crossorigin="anonymous"></script>
+  <link rel="icon" type="image/png" href="https://images.pexels.com/photos/4101143/pexels-photo-4101143.jpeg?auto=compress&cs=tinysrgb&w=32">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6748092513138323" crossorigin="anonymous"></script>
 </head>
 <body>
   <div class="container">
-    <div class="chat-header">Serena,<br> Your virtual AI Therapist</div>
+    <div class="chat-header">
+      <h1>Serena</h1>
+      <p>Your Compassionate AI Mental Health Assistant</p>
+      <div class="features">
+        <span class="feature">24/7 Support</span>
+        <span class="feature">Confidential</span>
+        <span class="feature">Free</span>
+      </div>
+    </div>
+
+    <div class="mood-tracker">
+      <p>How are you feeling today?</p>
+      <div class="mood-buttons">
+        <button class="mood-btn" data-mood="great">😊 Great</button>
+        <button class="mood-btn" data-mood="good">🙂 Good</button>
+        <button class="mood-btn" data-mood="okay">😐 Okay</button>
+        <button class="mood-btn" data-mood="bad">😔 Not Good</button>
+        <button class="mood-btn" data-mood="terrible">😢 Terrible</button>
+      </div>
+    </div>
+
     <div id="chatbox" class="chatbox"></div>
+    
     <div class="input-container">
-      <input id="messageInput" class="input-field" type="text" placeholder="Type your message..." />
+      <input id="messageInput" class="input-field" type="text" placeholder="Share your thoughts..." />
       <button id="sendButton" class="send-button">Send</button>
     </div>
-    <div class="contact-section">
-      <button id="whatsappButton" class="contact-button">Message Me</button>
-      <button id="callButton" class="contact-button">Call Me</button>
+
+    <div class="resources-section">
+      <h3>Need immediate help?</h3>
+      <div class="contact-section">
+        <button id="whatsappButton" class="contact-button">Message a Counselor</button>
+        <button id="callButton" class="contact-button">Call Helpline</button>
+      </div>
+      <div class="emergency-resources">
+        <p>Emergency Resources:</p>
+        <ul>
+          <li>National Emergency Hotline: 999</li>
+          <li>Befrienders Kenya: 0722178177</li>
+          <li>Mental Health Kenya: 0800723253</li>
+        </ul>
+      </div>
     </div>
-    <div class="tea-section">
-      <p class="tea-message">Feeling generous? 🍵 Angusha za kabej to my M-Pesa number: <strong>0746779950</strong>. Send money!</br>Rest easy ,no data is stored or sent anywhere else past your current session-</br>Ggreen</p>
+
+    <div class="disclaimer">
+      <p>⚠️ Important: While I'm here to listen and support, I'm not a replacement for professional mental health care. If you're in crisis or having thoughts of self-harm, please contact emergency services or a mental health professional immediately.</p>
+    </div>
+
+    <div class="support-section">
+      <p class="support-message">Support our mission 🙏 M-Pesa: <strong>0746779950</strong></p>
+      <p class="privacy-note">Your privacy matters: All conversations are private and not stored beyond your session.</p>
     </div>
   </div>
 
@@ -29,47 +70,45 @@
     const messageInput = document.getElementById("messageInput");
     const sendButton = document.getElementById("sendButton");
     const chatId = crypto.randomUUID();
+    let userMood = null;
 
     let receiving = false;
-    const systemPrompt = "You are Serena, a compassionate AI therapist. Greet first-time users warmly, listen carefully, offer empathetic responses, and validate their feelings. Gently encourage reflection and suggest professional help when appropriate, fostering trust and support.";
+    const systemPrompt = `You are Serena, a compassionate AI mental health assistant. Your approach:
+    1. Listen actively and validate feelings
+    2. Show genuine empathy and understanding
+    3. Ask thoughtful questions to encourage self-reflection
+    4. Provide gentle guidance and coping strategies
+    5. Recognize signs of serious issues and encourage professional help when needed
+    6. Maintain a warm, supportive tone
+    7. Focus on emotional support and practical wellness tips
+    8. Never diagnose or replace professional mental healthcare
+    If user expresses serious crisis or self-harm thoughts, immediately provide emergency resources.`;
+
+    // Mood tracking
+    document.querySelectorAll('.mood-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        userMood = this.dataset.mood;
+        document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
+        this.classList.add('selected');
+        
+        const moodMessage = `I'm feeling ${userMood} today.`;
+        const messageElement = createMessageElement(moodMessage, "right");
+        chatbox.appendChild(messageElement);
+        connectWebSocket(moodMessage);
+      });
+    });
 
     function createMessageElement(text, alignment) {
-  const messageRow = document.createElement("div");
-  messageRow.className = `message-row ${alignment === "left" ? "message-left" : "message-right"}`;
+      const messageRow = document.createElement("div");
+      messageRow.className = `message-row ${alignment === "left" ? "message-left" : "message-right"}`;
 
- // Create an avatar container for the smiley face emoji
-const avatarContainer = document.createElement("div");
-avatarContainer.className = "avatar-container";
+      const messageBubble = document.createElement("div");
+      messageBubble.className = `message-bubble ${alignment === "left" ? "message-left" : "message-right"}`;
+      messageBubble.textContent = text;
 
-avatarContainer.innerHTML = `
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="40" height="40" fill="none">
-    <!-- Head (circular face) -->
-    <circle cx="32" cy="32" r="30" fill="#FFEB3B"/>
-
-    <!-- Eyes -->
-    <circle cx="22" cy="24" r="4" fill="#333"/>
-    <circle cx="42" cy="24" r="4" fill="#333"/>
-
-    <!-- Smile -->
-    <path d="M20 38 Q32 48, 44 38" stroke="#333" stroke-width="4" fill="none"/>
-  </svg>
-`;
-  const messageBubble = document.createElement("div");
-  messageBubble.className = `message-bubble ${alignment === "left" ? "message-left" : "message-right"}`;
-  messageBubble.textContent = text;
-
-  // Append SVG to the message row
-  if (alignment === "left") {
-    messageRow.appendChild(avatarContainer);
-    messageRow.appendChild(messageBubble);
-  } else {
-    messageRow.appendChild(messageBubble);
-    messageRow.appendChild(avatarContainer);
-  }
-
-  return messageRow;
-}
-
+      messageRow.appendChild(messageBubble);
+      return messageRow;
+    }
 
     function connectWebSocket(message) {
       receiving = true;
@@ -87,26 +126,20 @@ avatarContainer.innerHTML = `
         );
       });
 
-      const messageElement = createMessageElement("", "left",   "right",
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="white">
-         <circle cx="12" cy="12" r="12" fill="#ff66b3"/>
-         <text x="50%" y="50%" text-anchor="middle" fill="white" dy=".3em" font-size="12">S</text>
-       </svg>`);
+      const messageElement = createMessageElement("", "left");
       chatbox.appendChild(messageElement);
 
       websocket.onmessage = (event) => {
         const responseText = event.data;
-        messageElement.innerText += responseText;
+        messageElement.querySelector('.message-bubble').textContent += responseText;
         chatbox.scrollTop = chatbox.scrollHeight;
       };
 
       websocket.onclose = (event) => {
-        if (event.code === 1000) {
-          receiving = false;
-        } else {
-          messageElement.textContent += " Error getting response from server. Refresh the page and try again.";
+        receiving = false;
+        if (event.code !== 1000) {
+          messageElement.querySelector('.message-bubble').textContent += " Unable to connect. Please try again.";
           chatbox.scrollTop = chatbox.scrollHeight;
-          receiving = false;
         }
       };
     }
@@ -115,14 +148,9 @@ avatarContainer.innerHTML = `
       if (!receiving && messageInput.value.trim() !== "") {
         const messageText = messageInput.value.trim();
         messageInput.value = "";
-        const messageElement = createMessageElement(messageText,   "right",
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="white">
-         <circle cx="12" cy="12" r="12" fill="#ff66b3"/>
-         <text x="50%" y="50%" text-anchor="middle" fill="white" dy=".3em" font-size="12">S</text>
-       </svg>`);
+        const messageElement = createMessageElement(messageText, "right");
         chatbox.appendChild(messageElement);
         chatbox.scrollTop = chatbox.scrollHeight;
-
         connectWebSocket(messageText);
       }
     });
@@ -135,22 +163,17 @@ avatarContainer.innerHTML = `
     });
 
     document.getElementById("whatsappButton").onclick = function() {
-      window.open("https://wa.me/+254 759 725841", "_blank");
+      window.open("https://wa.me/+254759725841", "_blank");
     };
 
     document.getElementById("callButton").onclick = function() {
       window.location.href = "tel:0746779950";
     };
+
+    // Initial greeting
+    window.addEventListener('load', () => {
+      connectWebSocket("Hello");
+    });
   </script>
-  NUMBER OF USERS:
-  <script src="https://cdn.vercel.analytics/analytics.js" async></script>
-<script>
-  window.vercelAnalytics = {
-    projectId: "prj_fHox0Imzoz9Tdpckhi1vEExlQUsa",
-  };
-</script>
-<!-- hitwebcounter Code START -->
-<a href="https://www.hitwebcounter.com" target="_blank">
-<img src="https://hitwebcounter.com/counter/counter.php?page=16962038&style=0025&nbdigits=9&type=page&initCount=0" title="Counter Widget" Alt="Visit counter For Websites"   border="0" /></a> 
 </body>
 </html>
